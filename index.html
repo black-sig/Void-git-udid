@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بلاك ستور | استخراج UDID</title>
+    <style>
+        :root {
+            --cosmic-blue: #0a1128;
+            --cosmic-purple: #3f114c;
+            --neon-cyan: #00f2fe;
+            --glass-bg: rgba(255, 255, 255, 0.015);
+            --border-color: rgba(0, 242, 254, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .space {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at top right, var(--cosmic-purple) 0%, #000 70%), radial-gradient(circle at bottom left, var(--cosmic-blue) 0%, #000 70%);
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.3;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: slowMove linear infinite, twinkle ease-in-out infinite alternate;
+        }
+
+        @keyframes slowMove { from { transform: translateY(110vh); } to { transform: translateY(-10vh); } }
+        @keyframes twinkle { from { opacity: 0.3; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
+
+        .glass-card {
+            width: 92%;
+            max-width: 420px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 35px;
+            padding: 40px 25px;
+            text-align: center;
+            box-shadow: 0 40px 120px rgba(0,0,0,0.8), inset 0 0 30px rgba(0, 242, 254, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        }
+
+        h1 { font-size: 2.1rem; font-weight: 900; margin-bottom: 25px; background: linear-gradient(to bottom, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            text-decoration: none;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-action:hover { transform: translateY(-3px); }
+        .btn-action:active { transform: scale(0.97); }
+
+        .notes-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: right;
+            border: 1px solid rgba(0, 242, 254, 0.1);
+        }
+
+        .note-step { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #ccc; }
+        .step-svg { width: 18px; height: 18px; fill: var(--neon-cyan); flex-shrink: 0; }
+
+        .result-view { display: none; }
+        .device-info { font-size: 0.9rem; color: #aaa; margin-bottom: 10px; }
+        #model-name { color: #fff; font-weight: 600; background: rgba(0, 242, 254, 0.1); padding: 3px 8px; border-radius: 8px; margin-right: 5px; }
+
+        .udid-display {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            padding: 25px 15px;
+            border-radius: 18px;
+            word-break: break-all;
+            font-family: monospace;
+            color: #fff;
+            margin: 20px 0;
+            font-size: 1.15rem;
+            letter-spacing: 1px;
+        }
+
+        .copy-hint { font-size: 0.85rem; color: #ccc; margin-top: 15px; display: block; line-height: 1.5; }
+        .copy-hint b { color: var(--neon-cyan); font-size: 0.95rem;}
+
+        /* تنسيق الفوتر وزر المطور */
+        footer { 
+            margin-top: 35px; 
+            text-align: center; 
+            z-index: 1; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .copyright { font-size: 0.8rem; color: rgba(255,255,255,0.4); }
+        .copyright b { color: var(--neon-cyan); }
+        
+        .dev-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #ccc;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .dev-badge:hover { 
+            background: rgba(0, 242, 254, 0.1); 
+            color: #fff;
+            border-color: rgba(0, 242, 254, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.2);
+        }
+        
+        .dev-icon { width: 16px; height: 16px; fill: var(--neon-cyan); }
+    </style>
+</head>
+<body>
+
+    <div class="space" id="stars"></div>
+
+    <div class="glass-card">
+        <img src="https://up6.cc/2026/03/177360502437041.jpeg" class="logo-img" alt="BLACK STORE Logo">
+        <h1>بلاك ستور</h1>
+        
+        <div id="home-ui">
+            <a href="/api/download" class="btn-action">استخراج الـ UDID 🚀</a>
+            <div class="notes-box">
+                <div class="note-step"><svg class="step-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg><span>اضغط سماح وقم بتحميل ملف التعريف.</span></div>
+                <div class="note-step"><svg class="step-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg><span>الإعدادات > تم تنزيل ملف التعريف.</span></div>
+                <div class="note-step"><svg class="step-svg" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg><span>ثبت الملف وسيتم إعادتك هنا تلقائياً لنسخ الكود.</span></div>
+            </div>
+        </div>
+
+        <div id="result-ui" class="result-view">
+            <p class="device-info">تم التعرف على جهازك: <span id="model-name">...</span></p>
+            <div id="udid-val" class="udid-display">جاري الجلب...</div>
+            <button onclick="copyUDID()" class="btn-action">نسخ الكود 📋</button>
+            <span class="copy-hint">يرجى نسخ الكود <b>وإرساله إلى المشرف</b> لإكمال عملية التفعيل.</span>
+        </div>
+    </div>
+
+    <footer>
+        <div class="copyright">جميع الحقوق محفوظة لـ <b>بلاك ستور</b> © 2026</div>
+        <a href="https://t.me/ipa_black" class="dev-badge" target="_blank">
+            <svg class="dev-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.35-.99.53-1.41.52-.46-.01-1.35-.26-2.01-.48-.81-.27-1.45-.42-1.39-.88.03-.24.36-.49 1-.74 3.91-1.7 6.52-2.82 7.83-3.36 3.73-1.54 4.5-1.81 5.01-1.82.11 0 .35.03.51.16.13.11.17.26.19.37.02.12.02.32-.01.46z"/></svg>
+            DEV BY IPA BLACK
+        </a>
+    </footer>
+
+    <script>
+        const stars = document.getElementById('stars');
+        for (let i = 0; i < 120; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            const size = Math.random() * 2.5;
+            s.style.width = size + 'px'; s.style.height = size + 'px';
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.animationDuration = (Math.random() * 30 + 20) + 's';
+            s.style.animationDelay = Math.random() * -30 + 's';
+            stars.appendChild(s);
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const udid = params.get('udid');
+        const model = params.get('model');
+
+        if (udid) {
+            document.getElementById('home-ui').style.display = 'none';
+            document.getElementById('result-ui').style.display = 'block';
+            document.getElementById('udid-val').innerText = udid;
+            document.getElementById('model-name').innerText = model ? model.replace(/,/g, ' ') : "جهاز آبل";
+        }
+
+        function copyUDID() {
+            const udidText = document.getElementById('udid-val').innerText;
+            if(navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(udidText).then(() => {
+                    alert("تم النسخ بنجاح! الرجاء إرساله إلى المشرف.");
+                }).catch(err => { fallbackCopyTextToClipboard(udidText); });
+            } else {
+                fallbackCopyTextToClipboard(udidText);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("تم النسخ بنجاح! الرجاء إرساله إلى المشرف.");
+            } catch (err) {
+                alert("فشل النسخ التلقائي. يرجى التحديد والنسخ يدوياً.");
+            }
+            document.body.removeChild(textArea);
+        }
+    </script>
+</body>
+</html>
